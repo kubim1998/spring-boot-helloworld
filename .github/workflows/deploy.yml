@@ -4,8 +4,11 @@ on:
   push:
     branches:
       - main
-jobs:
-  build:
+
+stages:
+- stage: StageA
+  jobs:
+  - build: A1
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
@@ -21,10 +24,10 @@ jobs:
         run: chmod +x ./gradlew
       - name: Run build with Gradle Wrapper
         run: ./gradlew build
-  deployment:
+  - deployment: A2
     runs-on: ubuntu-latest
-    dependsOn: build
-    condition: success
+    dependsOn: A1
+    condition: succeeded()
     steps:
       - name: Build and Push Docker Image
         run: |
