@@ -1,0 +1,35 @@
+name: Deployment
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    environment: production
+    concurrency: production
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v2
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.5.1
+        with:
+          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+
+      - name: Build and Push Docker Image
+        run: |
+          cd /path/to/your/java/application
+          docker build -t your-app .
+          docker tag your-app:latest your-docker-registry/your-app:latest
+          echo ${{ secrets.DOCKER_PASSWORD }} | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
+          docker push your-docker-registry/your-app:latest
+
+      - name: Deploy using Kubernetes
+        run: |
+          ssh -o StrictHostKeyChecking=no -i /dev/null ${{ secrets.SSH_USER }}@${{ secrets.EC2_HOST }} 'bash -s' << 'ENDSSH'
+          # Commands to be executed on the EC2 instance after connecting via SSH
+          kubectl apply -f /path/to/kube/manifests # Replace with your Kubernetes manifests
+          ENDSSH
