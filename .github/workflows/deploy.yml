@@ -8,7 +8,7 @@ on:
 stages:
 - stage: StageA
   jobs:
-    build:
+    - job: build
       runs-on: ubuntu-latest
       steps:
         - name: Checkout Code
@@ -29,7 +29,7 @@ stages:
   dependsOn: StageA
   condition: succeeded() #failed(') #Always()
   jobs:
-    deployment:
+    - job: deployment
       runs-on: ubuntu-latest
       steps:
         - name: Build and Push Docker Image
